@@ -12,7 +12,8 @@ public class ZooClubManager {
                     "\n2 - Add pet to person" +
                     "\n3 - Remove pet from person" +
                     "\n4 - Remove person from map" +
-                    "\n5 - Print all persons with pets" +
+                    "\n5 - Remove pet from all persons" +
+                    "\n6 - Print all persons with pets" +
                     "\n0 - Exit");
             System.out.println("------------------------------------");
             int function = scanner.nextInt();
