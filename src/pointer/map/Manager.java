@@ -1,9 +1,9 @@
 package pointer.map;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import com.sun.istack.internal.NotNull;
+
+import java.util.*;
+import java.util.function.Consumer;
 
 public class Manager {
     private Map<Person, List<Pet>> map = new HashMap<>();
@@ -12,45 +12,41 @@ public class Manager {
         return map;
     }
 
-    public void addPerson(Person person) {
-        List<Pet> pets = map.containsKey(person) ? map.get(person) : new LinkedList<>();
-
-        map.put(person, pets);
-
-        System.out.println(person + " is added.");
+    public void addPerson(@NotNull Person person) {
+        List<Pet> pets = map.putIfAbsent(person, new LinkedList<>());
+        System.out.println(person + (Objects.isNull(pets) ? "exists" : " is added."));
     }
 
-    public void addPetToPerson(Person person, Pet pet) {
-        if (hasNoPerson(person)) return;
-
-        map.get(person).add(pet);
-        System.out.println(pet + " is added to " + person);
+    public void addPetToPerson(@NotNull Person person, @NotNull Pet pet) {
+        acceptToPerson(person, (pets) -> {
+            pets.add(pet);
+            System.out.println(pet + " is added to " + person);
+        });
     }
 
-    public void removePetFromPerson(Person person, Pet pet) {
-        if (hasNoPerson(person)) return;
-
-        map.get(person).remove(pet);
-        System.out.println(pet + " is removed from " + person);
+    public void removePetFromPerson(@NotNull Person person, @NotNull Pet pet) {
+        acceptToPerson(person, (pets) -> {
+            pets.remove(pet);
+            System.out.println(pet + " is removed from " + person);
+        });
     }
 
-    public void removePerson(Person person) {
-        if (hasNoPerson(person)) return;
-
-        map.remove(person);
-        System.out.println(person + " is removed.");
+    public void removePerson(@NotNull Person person) {
+        List<Pet> pets = map.remove(person);
+        System.out.println(person + (Objects.isNull(pets) ? " doesn't exist in Zoo" : " is removed."));
     }
 
-    public void removePetFromAllPersons(Pet pet) {
+    public void removePetFromAllPersons(@NotNull Pet pet) {
         map.values().forEach(list -> list.remove(pet));
         System.out.println(pet + " is removed from all persons.");
     }
 
-    private boolean hasNoPerson(Person person) {
+    private void acceptToPerson(Person person, Consumer<List<Pet>> foo) {
         if (!map.containsKey(person)) {
-            System.out.println(person + " doesn't exist in Zoo");
-            return true;
+            System.out.println("Zoo has no person: " + person);
+            return;
         }
-        return false;
+
+        foo.accept(map.get(person));
     }
 }

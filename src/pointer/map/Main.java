@@ -1,9 +1,47 @@
 package pointer.map;
 
+import java.util.HashMap;
 import java.util.InputMismatchException;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.function.BiConsumer;
 
 public class Main {
+
+    private static Map<Creature, BiConsumer<Manager, Scanner>> addMap = new HashMap<>();
+    private static Map<Creature, BiConsumer<Manager, Scanner>> removeMap = new HashMap<>();
+    private static Map<Command, BiConsumer<Manager, Scanner>> commandMap = new HashMap<>();
+
+    static {
+        addMap.put(Creature.PERSON, (manager, scanner) ->
+                manager.addPerson(createPerson(scanner)));
+
+        addMap.put(Creature.PET, (manager, scanner) ->
+                manager.addPetToPerson(createPerson(scanner), createPet(scanner)));
+
+
+        removeMap.put(Creature.PERSON, (manager, scanner) ->
+                manager.removePerson(createPerson(scanner)));
+
+        removeMap.put(Creature.PET, (manager, scanner) ->
+                manager.removePetFromPerson(createPerson(scanner), createPet(scanner)));
+
+        removeMap.put(Creature.PETS, (manager, scanner) ->
+                manager.removePetFromAllPersons(createPet(scanner)));
+
+
+        commandMap.put(Command.ADD, (manager, scanner) -> addMap.getOrDefault(Creature.fromString(scanner.next()),
+                (m, s) -> System.out.println("Cannot do add"))
+                .accept(manager, scanner));
+
+        commandMap.put(Command.SHOW, (manager, scanner) -> System.out.println(manager.getZoo()));
+
+        commandMap.put(Command.REMOVE, (manager, scanner) -> removeMap.getOrDefault(Creature.fromString(scanner.next()),
+                (m, s) -> System.out.println("Cannot do remove."))
+                .accept(manager, scanner));
+
+        commandMap.put(Command.HELP, (manager, scanner) -> help());
+    }
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -14,44 +52,7 @@ public class Main {
 
         while (command != Command.EXIT) {
             try {
-                switch (command) {
-                    case SHOW:
-                        System.out.println(manager.getZoo());
-                        break;
-
-                    case ADD:
-                        Creature type = Creature.fromString(scanner.next());
-                        switch (type) {
-                            case PERSON:
-                                manager.addPerson(new Person(scanner.next(), scanner.nextInt()));
-                                break;
-                            case PET:
-                                manager.addPetToPerson(new Person(scanner.next(), scanner.nextInt()),
-                                        new Pet(scanner.next(), scanner.nextInt()));
-                                break;
-                        }
-                        break;
-
-                    case REMOVE:
-                        type = Creature.fromString(scanner.next());
-                        switch (type) {
-                            case PERSON:
-                                manager.removePerson(new Person(scanner.next(), scanner.nextInt()));
-                                break;
-                            case PET:
-                                manager.removePetFromPerson(new Person(scanner.next(), scanner.nextInt()),
-                                        new Pet(scanner.next(), scanner.nextInt()));
-                                break;
-                            case PETS:
-                                manager.removePetFromAllPersons(new Pet(scanner.next(), scanner.nextInt()));
-                                break;
-                        }
-                        break;
-
-                    case HELP:
-                        help();
-                        break;
-                }
+                commandMap.get(command).accept(manager, scanner);
             } catch (IllegalArgumentException ex) {
                 System.out.println("Wrong command type");
                 scanner.nextLine();
@@ -64,13 +65,21 @@ public class Main {
         }
     }
 
+    private static Person createPerson(Scanner scanner) {
+        return new Person(scanner.next(), scanner.nextInt());
+    }
+
+    private static Pet createPet(Scanner scanner) {
+        return new Pet(scanner.next(), scanner.nextInt());
+    }
+
     private static void help() {
-        System.out.println("- add person <userName:String> <userAge:int>");
-        System.out.println("- add pet <userName:String> <userAge:int> <petName:String> <petAge: int>");
-        System.out.println("- remove person <userName:String> <userAge:int>");
-        System.out.println("- remove pet <userName:String> <userAge:int> <petName:String> <petAge: int>");
-        System.out.println("- remove pets <petName:String> <petAge: int>");
-        System.out.println("- help");
-        System.out.println("- exit");
+        System.out.println("- add person <userName:String> <userAge:int>" +
+                "- add pet <userName:String> <userAge:int> <petName:String> <petAge: int>" +
+                "- remove person <userName:String> <userAge:int>" +
+                "- remove pet <userName:String> <userAge:int> <petName:String> <petAge: int>" +
+                "- remove pets <petName:String> <petAge: int>" +
+                "- help" +
+                "- exit");
     }
 }
