@@ -21,6 +21,7 @@ public class ZooClub {
     }
 
     public void startProgram() {
+<<<<<<< HEAD
         boolean programIsOn = true;
         while (programIsOn) {
             System.out.println("ZooClub application. beta 1.01.001\n" +
@@ -34,6 +35,21 @@ public class ZooClub {
                     "Press (6) Print ZooClub with Person and all Pet\n" +
                     "Press (7) Exit\n");
             int command = scanner.nextInt();
+=======
+        System.out.println("ZooClub application. beta 1.01.001\n" +
+                "Loading… ███████] 99%");
+        System.out.println("Use numbers to select a command:");
+        System.out.println("Press (1) Add Person to ZooClub\n" +
+                "Press (2) Add Pet to Person\n" +
+                "Press (3) Remove Pet from Person\n" +
+                "Press (4) Remove Person from ZooClub\n" +
+                "Press (5) Remove Pet from all Person\n" +
+                "Press (6) Print ZooClub with Person and all Pet\n" +
+                "Press (7) Exit\n");
+        int command = scanner.nextInt();
+        boolean programIsOn = true;
+        while (programIsOn) {
+>>>>>>> origin/master
             switch (command) {
                 case 1:
                     System.out.println("Input Person name:");
